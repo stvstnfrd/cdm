@@ -60,6 +60,8 @@ elif [[ -f /etc/cdmrc ]]; then
 fi
 
 # Default options.
+CDM_SESSIONS_DIR="${CDM_SESSIONS_DIR:-${XDG_DATA_HOME:-${HOME}/.local/share}/xsessions}"
+CDM_SESSIONS_DIR_FALLBACK="${CDM_SESSIONS_DIR_FALLBACK:-/usr/share/xsessions}"
 countfrom=${countfrom:-0}
 display=${display:-0}
 xtty=${xtty:-7}
@@ -86,11 +88,11 @@ if [ "${#binlist[@]}" -eq 0 ]; then
     _config_location="${CDM_SESSIONS_DIR}"
     desktopsessions=()
     if [ "${#desktopsessions[@]}" -eq 0 ] && [ -e "${_config_location}" ]; then
-        desktopsessions=$(find "${_config_location}" -name '*.desktop')
+        desktopsessions=($(find "${_config_location}" -name '*.desktop'))
     fi
     _config_location="${CDM_SESSIONS_DIR_FALLBACK}"
     if [ "${#desktopsessions[@]}" -eq 0 ] && [ -e "${_config_location}" ]; then
-        desktopsessions=$(find "${_config_location}" -name '*.desktop')
+        desktopsessions=($(find "${_config_location}" -name '*.desktop'))
     fi
     #TODO: allow full quoting and expansion according to desktop entry spec:
     # http://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#exec-variables
