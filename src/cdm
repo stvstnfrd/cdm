@@ -104,7 +104,7 @@ if [ "${#binlist[@]}" -eq 0 ]; then
             # The .desktop files allow there Exec keys to use $PATH lookup.
             binitem="$(which $(cut -f 1 -d ' ' <<< ${execkey}))"
             # If which fails to return valid path, skip to next .desktop file.
-            if [[ $? != 0 ]]; then continue; fi
+            if [ $? -ne 0 ]; then continue; fi
             is_terminal=$(sed -n -e 's/^Terminal=//p' <${desktopsessions[${count}]})
             if [ "${is_terminal}" = 'true' ]; then
                 _type='C'
