@@ -29,8 +29,6 @@
 #   MA 02110-1301, USA.
 
 name=$(basename "$0")
-longname='Console Display Manager'
-ver='0.8'
 
 trap '' SIGINT SIGTSTP
 
