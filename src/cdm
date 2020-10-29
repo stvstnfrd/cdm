@@ -73,7 +73,6 @@ fi
 
 # Default options.
 
-dialogrc=${dialogrc:-}
 countfrom=${countfrom:-0}
 display=${display:-0}
 xtty=${xtty:-7}
