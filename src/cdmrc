@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 #
 # Example config file for cdm(1).
 # Values set here is the default as in cdm(1).
@@ -39,7 +40,7 @@ display=0
 xtty=7
 
 # Should cdm(1) stick to the specified display?
-locktty=no
+locktty=false
 
 # Additional arguments to pass to X server, which is usually called as:
 #   /usr/bin/X :$display "${serverargs[@]}" vt$((xtty+display))
@@ -50,7 +51,7 @@ serverargs=(-nolisten tcp)
 # does not start X as expected (bash -x shows call to setsid startx, but for
 # no apparent reason does not start X).
 # Only provided in the hope it may be useful, not a guaranteed fix.
-altstartx=no
+altstartx=false
 
 # Destination for stdout and stderr output from startx.
 startxlog=/dev/null

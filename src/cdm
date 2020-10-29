@@ -30,12 +30,11 @@
 
 name=$(basename "$0")
 longname='Console Display Manager'
-ver='0.7'
+ver='0.8'
 
 trap '' SIGINT SIGTSTP
 
 # Helper functions.
-
 warn() { (printf ' \033[01;33m*\033[00m '; echo "$name: $*") > /dev/stderr; }
 error() { (printf ' \033[01;31m*\033[00m '; echo "$name: $*") > /dev/stderr; }
 exitnormal() { exit 0; }
@@ -54,7 +53,7 @@ yesno()
 }
 
 # Source cdm configurations.
-
+# shellcheck disable=SC1090
 if [[ -n "$1" ]]; then
     if [[ -f "$1" ]]
     then
@@ -68,15 +67,15 @@ elif [[ -f "$HOME/.cdmrc" ]]; then
 elif [[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/cdm/cdmrc" ]]; then
     source "${XDG_CONFIG_HOME:-$HOME/.config}/cdm/cdmrc"
 elif [[ -f /etc/cdmrc ]]; then
+    # shellcheck disable=SC1091
     source /etc/cdmrc
 fi
 
 # Default options.
-
 countfrom=${countfrom:-0}
 display=${display:-0}
 xtty=${xtty:-7}
-locktty=${locktty:-no}
+locktty=${locktty:-false}
 altstartx=${altstartx:-false}
 startxlog="${startxlog:-/dev/null}"
 [[ -z "${binlist[*]}" ]] && binlist=()
@@ -86,7 +85,6 @@ startxlog="${startxlog:-/dev/null}"
 
 # Offer all available sessions in /etc/X11/Sessions,
 # if $binlist if not explicitly set in cdmrc.
-
 if [[ "${#binlist[@]}" == 0 && -d /etc/X11/Sessions ]]; then
     binlist=($(find /etc/X11/Sessions -maxdepth 1 -type f))
     flaglist=($(sed 's/[[:digit:]]\+/X/g' <<< ${!binlist[@]}))
@@ -139,7 +137,7 @@ case "${#binlist[@]}" in
                fi
             done
         done
-        let binindex-=countfrom
+        (( binindex-=countfrom ))
         ;;
 esac
 
@@ -156,15 +154,14 @@ case ${flaglist[$binindex]} in
         # Also untrap SIGINT and SIGTSTP before spawning process: If this is not
         # done, any child process of any child (bash) shell will completely
         # ignore SIGINT, which is rather confusing, and cannot be undone.
-
         trap - SIGINT SIGTSTP
         CDM_SPAWN=$$ exec "${bin[@]}"
         ;;
 
     # *X* programs.
     [Xx])
-        # If X is already running and locktty=yes, activate it.
-        if $(yesno locktty) && xdpyinfo -display ":$display.0" &> /dev/null; then
+        # If X is already running and locktty=true, activate it.
+        if ${locktty} && xdpyinfo -display ":$display.0" &> /dev/null; then
             chvt "$((display+xtty))"
             exitnormal
         fi
@@ -178,7 +175,7 @@ case ${flaglist[$binindex]} in
                 # Invalid MIT cookie.
                 [[ "$dpyinfo" == 'Invalid MIT'* ]]
             then
-                let display+=1
+                (( display+=1 ))
             else
                 break
             fi
@@ -200,14 +197,14 @@ case ${flaglist[$binindex]} in
 
         if (if ${altstartx}; then
             # Alternative method of calling setsid(/startx) for systems that are unresponsive to the 'normal' call.
-            (setsid startx "$@" > "${startxlog}" 2>&1 &)
+            (setsid startx "${serverargs[@]}" > "${startxlog}" 2>&1 &)
         else
-            setsid startx "$@" > "${startxlog}" 2>&1 &
+            setsid startx "${serverargs[@]}" > "${startxlog}" 2>&1 &
         fi)
         then
             exitnormal
         else
-            warn "\`cdm-xlaunch' exited unsuccessfully."
+            warn "'setsid startx' exited unsuccessfully."
             exiterror
         fi
         ;;
