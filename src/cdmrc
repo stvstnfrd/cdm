@@ -55,3 +55,6 @@ altstartx=false
 
 # Destination for stdout and stderr output from startx.
 startxlog=/dev/null
+
+CDM_SESSIONS_DIR="${CDM_SESSIONS_DIR:-${${XDG_DATA_HOME:-${HOME}/.local/share}/xsessions}}"
+CDM_SESSIONS_DIR_FALLBACK="${CDM_SESSIONS_DIR_FALLBACK:-/usr/share/xsessions}"

@@ -82,8 +82,16 @@ fi
 # If $binlist is not set in cdmrc or by files in /etc/X11/Sessions,
 # try .desktop files in /usr/share/xsessions/ .
 
-if [[ "${#binlist[@]}" == 0 && -d /usr/share/xsessions ]]; then
-    desktopsessions=($(find /usr/share/xsessions/ -regex .\*.desktop))
+if [ "${#binlist[@]}" -eq 0 ]; then
+    _config_location="${CDM_SESSIONS_DIR}"
+    desktopsessions=()
+    if [ "${#desktopsessions[@]}" -eq 0 ] && [ -e "${_config_location}" ]; then
+        desktopsessions=$(find "${_config_location}" -name '*.desktop')
+    fi
+    _config_location="${CDM_SESSIONS_DIR_FALLBACK}"
+    if [ "${#desktopsessions[@]}" -eq 0 ] && [ -e "${_config_location}" ]; then
+        desktopsessions=$(find "${_config_location}" -name '*.desktop')
+    fi
     #TODO: allow full quoting and expansion according to desktop entry spec:
     # http://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#exec-variables
 
