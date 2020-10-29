@@ -23,7 +23,7 @@
 
 # Type of the programs, one-by-one matched with $binlist.
 # `C' for *C*onsole programs, which would be `exec'ed.
-# `X' for *X* programs, which would be run with cdm-xlaunch(1).
+# `X' for *X* programs, which would be run with `setsid startx`.
 #
 # (Continued example:)
 # flaglist=(X C C C)

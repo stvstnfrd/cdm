@@ -77,7 +77,7 @@ countfrom=${countfrom:-0}
 display=${display:-0}
 xtty=${xtty:-7}
 locktty=${locktty:-no}
-altstartx=${altstartx:-no}
+altstartx=${altstartx:-false}
 startxlog="${startxlog:-/dev/null}"
 [[ -z "${binlist[*]}" ]] && binlist=()
 [[ -z "${namelist[*]}" ]] && namelist=()
@@ -198,9 +198,12 @@ case ${flaglist[$binindex]} in
 
         serverargs=(":${display}" "${serverargs[@]}" "vt$vt")
 
-        $(yesno altstartx) && launchflags=("${launchflags[@]}" --altstartx)
-        launchflags=("${launchflags[@]}" --startxlog "$startxlog")
-        if cdm-xlaunch "${launchflags[@]}" -- "${bin[@]}" -- "${serverargs[@]}"
+        if (if ${altstartx}; then
+            # Alternative method of calling setsid(/startx) for systems that are unresponsive to the 'normal' call.
+            (setsid startx "$@" > "${startxlog}" 2>&1 &)
+        else
+            setsid startx "$@" > "${startxlog}" 2>&1 &
+        fi)
         then
             exitnormal
         else
