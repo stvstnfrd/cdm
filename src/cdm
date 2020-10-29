@@ -130,23 +130,18 @@ case "${#binlist[@]}" in
         binindex=0
         ;;
     1)
-        # No need to call dialog AND clear, only one possible program
+        # only one possible program
         binindex=0
         ;;
     *)
-        menu=()
-        for ((count = 0; count < ${#namelist[@]}; count++)); do
-            menu=("${menu[@]}" "$((count+countfrom))" "${namelist[${count}]}")
+        select value in "${namelist[@]}"; do
+            for i in "${!namelist[@]}"; do
+               if [[ "${namelist[$i]}" = "${value}" ]]; then
+                  binindex="${i}";
+                  break 2
+               fi
+            done
         done
-        binindex=$(
-            DIALOGRC="$dialogrc" dialog --colors --stdout \
-            --backtitle "$longname v$ver" --ok-label ' Select ' \
-            --cancel-label ' Exit ' --menu 'Select session' 0 0 0 "${menu[@]}"
-        )
-        if [[ $? != 0 ]]; then
-            clear; exitcancel
-        fi
-        clear
         let binindex-=countfrom
         ;;
 esac
