@@ -124,7 +124,10 @@ fi
 case "${#binlist[@]}" in
     0)
         error "No programs found in cdm config file, /etc/X11/Sessions or /usr/share/xsessions."
-        exiterror
+        binlist=('bash --login')
+        namelist=('bash')
+        flaglist=(C)
+        binindex=0
         ;;
     1)
         # No need to call dialog AND clear, only one possible program
