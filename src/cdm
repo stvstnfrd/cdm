@@ -39,23 +39,26 @@ exitnormal() { exit 0; }
 exiterror() { sleep 1; exit 1; }
 
 # Source cdm configurations.
-# shellcheck disable=SC1090
-if [[ -n "$1" ]]; then
-    if [[ -f "$1" ]]
-    then
-        source "$1"
-    else
-        error "config file \`$1' does not exist."
-        exiterror
-    fi
-elif [[ -f "$HOME/.cdmrc" ]]; then
-    source "$HOME/.cdmrc"
-elif [[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/cdm/cdmrc" ]]; then
-    source "${XDG_CONFIG_HOME:-$HOME/.config}/cdm/cdmrc"
-elif [[ -f /etc/cdmrc ]]; then
-    # shellcheck disable=SC1091
-    source /etc/cdmrc
+if [ -n "${1}" ] && [ ! -e "${1}" ]
+then
+    error "config file \`${1}' does not exist."
+    exiterror
 fi
+_rc_explicit="${1}"
+_rc_environment="${CDMRC}"
+_rc_home="${HOME}/.cdmrc"
+_rc_config="${XDG_CONFIG_HOME:-$HOME/.config}/cdm/cdmrc"
+_rc_global='/etc/cdmrc'
+for _rc in ${_rc_explicit} ${_rc_environment} ${_rc_home} ${_rc_config} ${_rc_global}
+do
+    if [ -f "${_rc}" ]
+    then
+        # shellcheck disable=SC1090
+        . "${_rc}"
+        break
+    fi
+done
+unset _rc_explicit _rc_environment _rc_home _rc_config _rc_global
 
 # Default options.
 CDM_SESSIONS_DIR="${CDM_SESSIONS_DIR:-${XDG_DATA_HOME:-${HOME}/.local/share}/xsessions}"
