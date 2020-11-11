@@ -197,13 +197,12 @@ case ${flaglist[$binindex]} in
             vt="$((xtty+display))"
         fi
 
-        serverargs=(":${display}" "${serverargs[@]}" "vt$vt")
-
+        serverargs=(":${display}" "${XSERVERRC}" "${serverargs[@]}" "vt$vt")
         if (if ${altstartx}; then
             # Alternative method of calling setsid(/startx) for systems that are unresponsive to the 'normal' call.
-            (setsid startx "${serverargs[@]}" > "${startxlog}" 2>&1 &)
+            (setsid startx "${XINITRC}" -- "${serverargs[@]}" > "${startxlog}" 2>&1 &)
         else
-            setsid startx "${serverargs[@]}" > "${startxlog}" 2>&1 &
+            setsid startx "${XINITRC}" -- "${serverargs[@]}" > "${startxlog}" 2>&1 &
         fi)
         then
             exitnormal
